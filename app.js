@@ -3,7 +3,8 @@ const path = require('path')
 const {open} = require('sqlite')
 const sqlite3 = require('sqlite3')
 const dbpath = path.join(__dirname, 'covid19India.db')
-const app = express()
+const app = express() 
+const jwt = require("jsonwebtoken")
 let db = null
 app.use(express.json())
 initilizingDBAndServer = async () => {
@@ -20,6 +21,64 @@ initilizingDBAndServer = async () => {
   }
 }
 initilizingDBAndServer()
+//login user 
+app.post("/login/" , async(req,res)=>{
+   const {username,password} = req.body; 
+   console.log(username , password)   
+   try{
+       const userValidity = `
+          select 
+           * 
+          from user 
+          where 
+          username = '${username}'
+       ` 
+       const dbresponse = await db.get(userValidity)
+       if(dbresponse !== undefined){
+          const payload ={
+             username:username
+          } 
+         const jwtToken=  jwt.sign(payload,"MY_SECRET_KEY") 
+         res.send({jwtToken})
+       } 
+       else{
+         res.status(400).send("invalid user login")   
+       }
+   } 
+   catch(err){
+     console.log(err.msg)
+   }
+})
+
+const authenticationToken = async(req,res,next)=>{
+   try{
+       let jwtToken; 
+       let authHeaders = req.headers["authorization"] 
+       if(authHeaders !== undefined){
+         jwtToken = authHeaders.split(" ")[1]
+       } 
+       if(authHeaders === undefined){
+         res.status(400).send("Invalid token access")
+       } 
+       else{
+         jwt.verify(jwtToken,"MY_SECRET_TOKEN",async (payload,error)=>{
+              console.log(jwtToken)
+              if(error){
+                 res.status(400).send("INVALID JWTTOKEN")
+              } 
+              else{ 
+                req.username = payload.username
+                 next()
+              }
+         })
+       }
+   } 
+   catch(err){
+     console.log(err.msg)
+   }
+}
+
+
 
 //1)Returns a list of all states in the state table
 const convertTheFormat=(eachState)=>{ 
@@ -30,7 +89,7 @@ const convertTheFormat=(eachState)=>{
         population: eachState.population,
    }
 }
-app.get('/states/', async (req, res) => {
+app.get('/states/',authenticationToken, async (req, res) => {
   const getStatesQuery = `
      select 
        * 
@@ -183,4 +242,7 @@ app.get('/districts/:districtId/details/', async (req, res) => {
   const dbresponse = await db.get(getStateNamequery)
   res.send(dbresponse.state_name)
 })
-module.exports = app
+module.exports = app   
+
+
+
