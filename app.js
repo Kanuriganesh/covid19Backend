@@ -105,7 +105,7 @@ app.get('/states/',authenticationToken, async (req, res) => {
 })
 
 //2 get the specified  state using the get /states/:stateId/
-app.get('/states/:stateId/', async (req, res) => {
+app.get('/states/:stateId/',authenticationToken, async (req, res) => {
   const {stateId} = req.params
   const getSingleStateQuery = `
      select 
@@ -119,7 +119,7 @@ app.get('/states/:stateId/', async (req, res) => {
 })
 
 //3 posting the district data in the district table
-app.post('/districts/', async (req, res) => {
+app.post('/districts/',authenticationToken, async (req, res) => {
   const userRequestDetails = req.body
   const {districtName, stateId, cases, cured, active, deaths} =
     userRequestDetails
@@ -143,7 +143,7 @@ app.post('/districts/', async (req, res) => {
 })
 
 //4 getting the district from the district table /districts/:districtId/
-app.get('/districts/:districtId/', async (req, res) => {
+app.get('/districts/:districtId/', authenticationToken,async (req, res) => {
   const {districtId} = req.params
   const gettingTheSingleDistrict = `  
      select 
@@ -158,7 +158,7 @@ app.get('/districts/:districtId/', async (req, res) => {
 })
 
 //5 deleting the district from the database /districts/:districtId/
-app.delete('/districts/:districtId/', async (req, res) => {
+app.delete('/districts/:districtId/',authenticationToken, async (req, res) => {
   const {districtId} = req.params
   const deleteDistrictQuery = `
 
@@ -174,7 +174,7 @@ app.delete('/districts/:districtId/', async (req, res) => {
 })
 
 //6 updating the district form the specified id of the district /districts/:districtId/
-app.put('/districts/:districtId/', async (req, res) => {
+app.put('/districts/:districtId/',authenticationToken , async (req, res) => {
   const {districtId} = req.params
   const userRequest = req.body
   const {districtName, stateId, cases, cured, active, deaths} = userRequest
@@ -198,7 +198,7 @@ app.put('/districts/:districtId/', async (req, res) => {
 })
 
 //7 getting the details infromation fro the specified state /states/:stateId/stats/
-app.get('/states/:stateId/stats/', async (req, res) => {
+app.get('/states/:stateId/stats/',authenticationToken, async (req, res) => {
   const {stateId} = req.params
   const gettingStateQuery = `
      select 
@@ -226,7 +226,7 @@ app.get('/states/:stateId/stats/', async (req, res) => {
 
 
 // getting the state from the given district id
-app.get('/districts/:districtId/details/', async (req, res) => {
+app.get('/districts/:districtId/details/',authenticationToken, async (req, res) => {
   const {districtId} = req.params
   const getStateNamequery = `
     select   
